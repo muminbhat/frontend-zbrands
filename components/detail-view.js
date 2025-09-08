@@ -2,9 +2,10 @@
 import { Modal } from "@/components/ui/modal";
 import { Tabs } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui";
 import { getHostname, getFavicon } from "@/lib/url";
 
-export function DetailView({ open, onClose, candidate, profile, metrics }) {
+export function DetailView({ open, onClose, candidate, profile, metrics, onDeepSearch, deepSearching }) {
   if (!candidate && !profile) return null;
   const name = candidate?.display_name || profile?.names?.[0] || candidate?.usernames?.[0] || "Unknown";
   const formatField = (s) => (s ? s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "");
@@ -43,6 +44,11 @@ export function DetailView({ open, onClose, candidate, profile, metrics }) {
           <div className="text-sm text-muted-foreground">Emails: {(candidate?.emails || profile?.emails || []).join(", ") || "—"}</div>
           <div className="text-sm text-muted-foreground">Usernames: {(candidate?.usernames || profile?.usernames || []).join(", ") || "—"}</div>
           <div className="pt-2 text-xs text-muted-foreground">Score: {typeof candidate?.score === "number" ? candidate.score.toFixed(2) : "—"}</div>
+          <div className="pt-3">
+            <Button onClick={onDeepSearch} disabled={deepSearching}>
+              {deepSearching ? "Deep searching…" : "Deep search this person"}
+            </Button>
+          </div>
         </div>
 
         {/* Evidence */}

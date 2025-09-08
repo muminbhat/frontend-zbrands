@@ -29,6 +29,7 @@ export default function SearchClient() {
   const [answerForm, setAnswerForm] = useState({ name: "", location: "", email: "", phone: "", username: "", context_text: "" });
   const [isChoosing, setIsChoosing] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
+  const [deepSearching, setDeepSearching] = useState(false);
 
   const update = (key) => (e) => {
     const val = e.target.value;
@@ -327,6 +328,33 @@ export default function SearchClient() {
         candidate={selectedIndex !== null ? (result?.candidates || [])[selectedIndex] : null}
         profile={result?.profile}
         metrics={result?.metrics}
+        deepSearching={deepSearching}
+        onDeepSearch={async () => {
+          const cand = selectedIndex !== null ? (result?.candidates || [])[selectedIndex] : null;
+          if (!cand) return;
+          const seed = {
+            name: cand.display_name || "",
+            location: (cand.locations || [])[0] || "",
+            email: (cand.emails || [])[0] || "",
+            phone: (cand.phones || [])[0] || "",
+            username: (cand.usernames || [])[0] || "",
+            context_text: (result?.profile?.bios || [""])[0] || "",
+          };
+          setDeepSearching(true);
+          setError("");
+          setResult(null);
+          setStatus("queued");
+          try {
+            const r = await startSearch(seed);
+            setJobId(r.job_id);
+            setStatus(r.status);
+          } catch (err) {
+            setError(err.message || "Failed to start deep search");
+            setStatus("failed");
+          } finally {
+            setDeepSearching(false);
+          }
+        }}
       />
     </div>
   );
